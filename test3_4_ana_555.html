@@ -20,7 +20,7 @@ if ('serviceWorker' in navigator) {
 }
 </script>
 
-    <title>Dorrobor_ver2_クボファク</title>
+    <title>Dorrobor_usb</title>
 </head>
 <style>
     /* 元のコードのCSSスタイルを維持し、レイアウトを調整 */
@@ -127,10 +127,11 @@ let latestGpsPosition = null;
 let latestGgaFixQuality = 0;
 
 // USB-GPSモジュールに合わせて変更してください
-const NMEA_VENDOR_ID = 0x0403; // 例: FTDI
-const NMEA_PRODUCT_ID = 0x6001; // 例: FTDI
-const INTERFACE_NUMBER = 0; // 適切なインターフェース番号
+const NMEA_VENDOR_ID = 0x1546; // 例: FTDI
+const NMEA_PRODUCT_ID = 0x01A8; // 例: FTDI
+const INTERFACE_NUMBER = 1; // 適切なインターフェース番号
 const IN_ENDPOINT = 2; // 適切なインエンドポイント番号
+
 
 let connectedDeviceName;
 let idd, keii, iddd, keiii, hido, hkeii, pl, cir;
@@ -737,3 +738,4 @@ window.addEventListener('DOMContentLoaded', function () {
 </script>
 </body>
 </html>
+
