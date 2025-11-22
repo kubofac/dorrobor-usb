@@ -25,44 +25,97 @@ if ('serviceWorker' in navigator) {
 <style>
     /* 元のコードのCSSスタイルを維持し、レイアウトを調整 */
     html { touch-action: manipulation; -webkit-touch-callout: none; }
+    /* ★修正: bodyのmin-heightと背景色 */
     #body { min-height: 100vh;}
     #container {
         position: relative;
         margin-top:0px;
-        background:white;
+        /* ★修正: 背景色を黒に */
+        background: black; 
         width: 720px;
         height: 360px;
     }
     #canvas{ margin-top:10px; margin-left:0px; position: absolute; z-index: 2; }
     #main_img { margin-top:30px; margin-left:20px; position: absolute; z-index:1; }
     #main_imgg { margin-top:30px; margin-left:20px; position: absolute; z-index: 3; }
-    .button1{ border-width: 1px; border-color: #e6e6e6; border-style: solid; background-color: #fff; padding: 5px 20px 5px 20px; color: #4d4d4d; font-size: 14px; font-weight: 300; margin:20px 0px 0px 630px; position: absolute; z-index: 5; }
-    .button2{ border-width: 1px; border-color: #e6e6e6; border-style: solid; background-color: #fff; padding: 5px 20px 5px 20px; color: #4d4d4d; font-size: 14px; font-weight: 300; margin:60px 0px 0px 630px; position: absolute; z-index: 4; }
-    .button3{ border-width: 1px; border-color: #e6e6e6; border-style: solid; background-color: #fff; padding: 5px 20px 5px 20px; color: #4d4d4d; font-size: 14px; font-weight: 300; margin:100px 0px 0px 630px; position: absolute; z-index: 9; }
-    .button4{ border-width: 1px; border-color: #e6e6e6; border-style: solid; background-color: #fff; padding: 5px 20px 5px 20px; color: #4d4d4d; font-size: 14px; font-weight: 300; margin:140px 0px 0px 630px; position: absolute; z-index: 10; }
-    .button5{ border-width: 1px; border-color: #e6e6e6; border-style: solid; background-color: #fff; padding: 5px 20px 5px 20px; color: #4d4d4d; font-size: 14px; font-weight: 300; margin:180px 0px 0px 630px; position: absolute; z-index: 14; }
-    .button6{ border-width: 1px; border-color: #e6e6e6; border-style: solid; background-color: #fff; padding: 5px 20px 5px 20px; color: #4d4d4d; font-size: 14px; font-weight: 300; margin:220px 0px 0px 630px; position: absolute; z-index: 15; }
-    .button1:hover{background-color: #dcdcdc;} .button1:active{background-color: #77DD77;}
-    .button2:hover{background-color: #dcdcdc;} .button2:active{background-color: #ff0000;}
-    .button3:hover{background-color: #dcdcdc;} .button3:active{background-color: #77DD77;}
-    .button4:hover{background-color: #dcdcdc;} .button4:active{background-color: #ff0000;}
-    .button5:hover{background-color: #dcdcdc;} .button5:active{background-color: #77DD77;}
-    .button6:hover{background-color: #dcdcdc;} .button6:active{background-color: #ff0000;}
-    div#debugInfo{ position: absolute; z-index: 30; opacity: 1; top:360px; width:100%; height:200px; background-color: #eee; font-size:12px; padding:10px; overflow-y: scroll; }
+    
+    /* ★修正: ボタンのスタイル（黒背景に合わせて調整） */
+    .button1, .button2, .button3, .button4, .button5, .button6 { 
+        border-width: 1px; border-color: #4d4d4d; border-style: solid; 
+        /* 背景色を暗い色に */
+        background-color: #333; 
+        /* 文字色を白に */
+        color: #fff; 
+        padding: 5px 20px 5px 20px; 
+        font-size: 14px; font-weight: 300; 
+        position: absolute; z-index: 4; 
+    }
+    
+    .button1{ margin:20px 0px 0px 630px; z-index: 5; }
+    .button2{ margin:60px 0px 0px 630px; z-index: 4; }
+    .button3{ margin:100px 0px 0px 630px; z-index: 9; }
+    .button4{ margin:140px 0px 0px 630px; z-index: 10; }
+    .button5{ margin:180px 0px 0px 630px; z-index: 14; }
+    .button6{ margin:220px 0px 0px 630px; z-index: 15; }
+
+    /* ホバー/アクティブ時の色も調整 */
+    .button1:hover, .button2:hover, .button3:hover, .button4:hover, .button5:hover, .button6:hover { background-color: #555; } 
+    .button1:active, .button3:active, .button5:active { background-color: #77DD77; } /* Start/Connect系 */
+    .button2:active, .button4:active, .button6:active { background-color: #ff0000; } /* Stop/Reset系 */
+    
+    /* ★修正: デバッグ情報の背景と文字色 */
+    div#debugInfo{ 
+        position: absolute; z-index: 30; opacity: 1; top:360px; width:100%; height:200px; 
+        background-color: #222; /* 暗めの背景 */
+        color: #fff; /* 白い文字 */
+        font-size:12px; padding:10px; overflow-y: scroll; 
+    }
+    
     .data_text{ margin:100px 0px 0px 530px; position: absolute; z-index: 6; }
     diiv#device_name { margin:0px 0px 0px 0px; position: absolute; z-index: 19; }
-    .datatext2{ color: #000000; font-size: 40px; font-weight: bold; font-family:"Arial"; margin:290px 0px 0px 500px; position: absolute; z-index: 8; width: 170px; text-align:right; }
-    div#display1 { color: #000000; font-size: 70px; font-weight: bold; font-family:"Arial"; margin:0px 0px 0px 300px; position: absolute; z-index: 11; }
-    div#display { color: #000000; font-size: 40px; font-weight: bold; font-family:"Arial"; margin:80px 0px 0px 310px; position: absolute; z-index: 12; }
-    div#lap { font-family:"Arial"; position: relative; text-align: center; font-size: 30px; height: 300px; overflow-y: scroll; width: 100%; min-height: 200px; margin-top: 60px; margin-bottom: 10px; left: 0px; }
+    
+    /* ★修正: datatext2の文字色 */
+    .datatext2{ 
+        color: #ffffff; /* 白に */
+        font-size: 40px; font-weight: bold; font-family:"Arial"; 
+        margin:290px 0px 0px 500px; position: absolute; z-index: 8; width: 170px; text-align:right; 
+    }
+    
+    /* ★修正: display1の文字色 */
+    div#display1 { 
+        color: #ffffff; /* 白に */
+        font-size: 70px; font-weight: bold; font-family:"Arial"; 
+        margin:0px 0px 0px 300px; position: absolute; z-index: 11; 
+    }
+    
+    /* ★修正: displayの文字色 */
+    div#display { 
+        color: #ffffff; /* 白に */
+        font-size: 40px; font-weight: bold; font-family:"Arial"; 
+        margin:80px 0px 0px 310px; position: absolute; z-index: 12; 
+    }
+    
+    div#lap { font-family:"Arial"; position: relative; text-align: center; font-size: 30px; height: 300px; overflow-y: scroll; width: 100%; min-height: 200px; margin-top: 60px; margin-bottom: 10px; left: 0px; 
+        /* ★修正: ラップ表示の文字色を白に */
+        color: #ffffff;
+    }
     div#mask { width: 300px; height: 200px; overflow: hidden; margin:70px 0px 0px 260px; position: absolute; z-index: 13; }
     div#lap>div { font-size: 4vw; }
-    div#jikan1{ margin:300px 0px 0px 0px; position: absolute; z-index:16; }
-    div#speed1 { color: #000000; font-size: 30px; font-weight: bold; font-family:"Arial"; margin:290px 0px 0px 270px; position: absolute; z-index: 17; text-align:left; }
+    div#jikan1{ margin:300px 0px 0px 0px; position: absolute; z-index:16; 
+        /* ★修正: 時刻表示の文字色を白に */
+        color: #ffffff;
+    }
+    
+    /* ★修正: speed1の文字色 */
+    div#speed1 { 
+        color: #ffffff; /* 白に */
+        font-size: 30px; font-weight: bold; font-family:"Arial"; 
+        margin:290px 0px 0px 270px; position: absolute; z-index: 17; text-align:left; 
+    }
     div#test{ margin:20px 0px 0px 0px; position: absolute; z-index: 18; }
 </style>
 
-<body bgcolor="#ffffff" text="#000000">
+<body bgcolor="#000000" text="#ffffff"> 
 <div id="container">
     <canvas id="canvas"></canvas>
     <img id="main_img" src="22.gif"></img>
@@ -210,7 +263,10 @@ function handlePulseChanged(event) {
     const sizeb = 340;
     const endAngle = anglea * Math.PI / 180;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#000000";
+    
+    // ★修正: Canvasの文字色を白に
+    ctx.fillStyle = "#ffffff";
+    
     ctx.font = "bold 45px Arial";
     ctx.textAlign = "center";
     ctx.fillText(s1, 235, 240);
@@ -443,7 +499,7 @@ function processNmeaData(data) {
         if (latestGgaFixQuality > 0) {
             gpsButton.style.backgroundColor = '#77DD77'; // 信号あり
         } else {
-            gpsButton.style.backgroundColor = 'white'; // 信号なし
+            gpsButton.style.backgroundColor = '#333'; // 信号なし (黒背景に合わせたボタンの通常色)
         }
     }
 }
@@ -514,7 +570,8 @@ async function stopGps() {
     lastPosition = null;
     previousSideOfLine = null;
     latestGgaFixQuality = 0;
-    if(gpsButton) gpsButton.style.backgroundColor = 'white';
+    // ★修正: GPSボタンの色を黒背景に合わせた通常色に戻す
+    if(gpsButton) gpsButton.style.backgroundColor = '#333'; 
 }
 
 function startGps() {
@@ -738,4 +795,3 @@ window.addEventListener('DOMContentLoaded', function () {
 </script>
 </body>
 </html>
-
