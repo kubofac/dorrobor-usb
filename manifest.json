@@ -1,6 +1,6 @@
 {
-  "name": "BLE ストップウォッチ",
-  "short_name": "BLE_SW",
+  "name": "dorrobor-usb",
+  "short_name": "dorrobor-usb",
   "description": "BLEとGPSに対応したラップタイマーアプリです。",
   "start_url": "/index.html",
   "display": "fullscreen",
@@ -20,3 +20,4 @@
     }
   ]
 }
+
