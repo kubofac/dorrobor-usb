@@ -1,4 +1,4 @@
-const CACHE_NAME = 'stopwatch-v1';
+const CACHE_NAME = 'dorrobor-usb';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -54,4 +54,5 @@ self.addEventListener('activate', (event) => {
       );
     })
   );
+
 });
