@@ -69,6 +69,7 @@ if ('serviceWorker' in navigator) {
         background-color: #222; /* 暗めの背景 */
         color: #fff; /* 白い文字 */
         font-size:12px; padding:10px; overflow-y: scroll; 
+       display: none;
     }
     
     .data_text{ margin:100px 0px 0px 530px; position: absolute; z-index: 6; }
@@ -129,7 +130,7 @@ if ('serviceWorker' in navigator) {
     <button id="bluetoothDisconnectBtn" class="button2">Stop</button>
     <button id="start" class="button3">start</button>
     <button id="reset" class="button4">reset</button>
-    <button id="gpsButton" class="button5">GPS接続</button>
+    <button id="gpsButton" class="button5">GPS</button>
     <input type="button" onclick="displayDate()" class="button6" value="GET">
     <div id='display1'>00:00.000</div>
     <div id='display'>00:00.000</div>
@@ -275,7 +276,7 @@ function handlePulseChanged(event) {
     ctx.beginPath();
     ctx.moveTo(0, 0);
     ctx.lineTo(0, sizeb / 2 - 60);
-    ctx.strokeStyle = "#ff0000";
+    ctx.strokeStyle = "#ffffff";
     ctx.lineWidth = 5;
     ctx.stroke();
 }
@@ -795,3 +796,4 @@ window.addEventListener('DOMContentLoaded', function () {
 </script>
 </body>
 </html>
+
