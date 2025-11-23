@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
 
 <link rel="manifest" href="/manifest.json">
 
@@ -69,7 +69,6 @@ if ('serviceWorker' in navigator) {
         background-color: #222; /* 暗めの背景 */
         color: #fff; /* 白い文字 */
         font-size:12px; padding:10px; overflow-y: scroll; 
-       display: none;
     }
     
     .data_text{ margin:100px 0px 0px 530px; position: absolute; z-index: 6; }
@@ -119,7 +118,7 @@ if ('serviceWorker' in navigator) {
 <body bgcolor="#000000" text="#ffffff"> 
 <div id="container">
     <canvas id="canvas"></canvas>
-  
+    <img id="main_img" src="22.gif"></img>
     <img id="main_imgg" src="33.svg"></img>
     <div id="data_text1" class="datatext1"> </div>
     <div id="data_text2" class="datatext2"> </div>
@@ -157,6 +156,11 @@ let countUpTimerId; // requestAnimationFrameのID
 let lapTimerId;     // requestAnimationFrameのID
 let lapStartTime = 0;
 let lapFixedDisplayTimeoutId;
+
+// ★ 修正追加: localStorageの更新頻度制御用
+const STORAGE_UPDATE_INTERVAL = 1000;
+let lastStorageUpdate = 0;
+
 
 // --- Web Bluetooth API関連のグローバル変数 ---
 let bleDevice;
@@ -302,7 +306,7 @@ function handleSwitchChanged(event) {
     }
 }
 
-// --- ストップウォッチ関連の関数 (省略なし) ---
+// --- ストップウォッチ関連の関数 (修正箇所) ---
 const timePrint = (time) => {
     let m = Math.floor(time / 60000); let s = Math.floor(time % 60000 / 1000); let ms = Math.floor(time % 1000); m = ('0' + m).slice(-2); s = ('0' + s).slice(-2); ms = ('00' + ms).slice(-3);
     if (elem.display) elem.display.textContent = `${m}:${s}.${ms}`;
@@ -314,13 +318,22 @@ const setStorage = () => {
 };
 const clearStorage = () => { localStorage.removeItem(storageName); };
 
+// ★ 修正: localStorageへの書き込みを1秒に1回に制限し、表示の滑らかさを確保
 const countUp = () => {
-    countUpTimerId = requestAnimationFrame(() => {
+    countUpTimerId = requestAnimationFrame((timestamp) => {
         if (startTime === 0) startTime = Date.now();
         const now = Date.now();
+        
+        // メインの時間を表示 (毎フレーム実行)
         timePrint(now - startTime);
-        countUp();
-        setStorage();
+        
+        // 1秒に1回だけストレージを更新
+        if (now - lastStorageUpdate >= STORAGE_UPDATE_INTERVAL) {
+            setStorage();
+            lastStorageUpdate = now;
+        }
+
+        countUp(); // 次のフレームを要求
     });
 };
 
@@ -368,6 +381,7 @@ const clickStartSW = () => {
         lastLapTime = Date.now();
         lapStartTime = Date.now();
         lapCount = 0;
+        lastStorageUpdate = 0; // 開始時にストレージを即時更新するためにリセット
         countUp();
         startRealtimeLap();
         if (startButton) startButton.textContent = 'stop'; if (resetButton) resetButton.textContent = 'lap';
@@ -379,12 +393,19 @@ const clickStartSW = () => {
         cancelAnimationFrame(countUpTimerId);
         cancelAnimationFrame(lapTimerId);
         clearTimeout(lapFixedDisplayTimeoutId);
-        startTime = -(Date.now() - startTime); if (startButton) startButton.textContent = 'start'; if (resetButton) resetButton.textContent = 'reset'; setStorage();
+        startTime = -(Date.now() - startTime); 
+        if (startButton) startButton.textContent = 'start'; 
+        if (resetButton) resetButton.textContent = 'reset'; 
+        setStorage(); // PAUSE時にストレージを更新
     } else if (swState === SW_STATE.PAUSE) {
-        swState = SW_STATE.RUN; startTime = Date.now() + startTime; lapStartTime = Date.now();
+        swState = SW_STATE.RUN; 
+        startTime = Date.now() + startTime; 
+        lapStartTime = Date.now();
+        lastStorageUpdate = 0; // 再開時にストレージを即時更新するためにリセット
         countUp();
         startRealtimeLap();
-        if (startButton) startButton.textContent = 'stop'; if (resetButton) resetButton.textContent = 'lap';
+        if (startButton) startButton.textContent = 'stop'; 
+        if (resetButton) resetButton.textContent = 'lap';
         
         // ★ 修正：startGps() の呼び出しを削除
     }
@@ -422,7 +443,7 @@ const clickLapResetSW = () => {
     }
 };
 
-// --- WebUSB/NMEA関連の補助関数 (追加) ---
+// --- WebUSB/NMEA関連の補助関数 (省略なし) ---
 function dmsToDecimal(dmm, direction) {
     if (!dmm || isNaN(dmm)) return null;
     let d = Math.floor(dmm / 100);
@@ -485,7 +506,7 @@ function processNmeaData(data) {
                 latestGpsPosition = position;
             }
             
-            // デバッグ情報にNMEA行を追加（情報量が多すぎる場合は適宜調整してください）
+            // デバッグ情報にNMEA行を追加
             const debugLog = document.createElement('div');
             debugLog.textContent = line.trim();
             debugInfo.prepend(debugLog);
@@ -746,7 +767,7 @@ function onWebUsbPositionUpdate(position) {
 }
 
 
-// --- 実行コード (★ 修正：イベントリスナーを 'click' に統一) ---
+// --- 実行コード ---
 window.addEventListener('DOMContentLoaded', function () {
     const startButton = document.getElementById('start');
     const resetButton = document.getElementById('reset');
@@ -760,7 +781,7 @@ window.addEventListener('DOMContentLoaded', function () {
     elem.display1 = document.getElementById('display1');
     elem.deviceName = document.getElementById('device_name');
 
-    // ★ 修正：イベントタイプを 'click' に統一
+    // イベントリスナーを 'click' に統一
     if (startButton) startButton.addEventListener('click', clickStartSW);
     if (resetButton) resetButton.addEventListener('click', clickLapResetSW);
     if (bluetoothConnectBtn) bluetoothConnectBtn.addEventListener('click', bluetoothConnect);
@@ -796,5 +817,3 @@ window.addEventListener('DOMContentLoaded', function () {
 </script>
 </body>
 </html>
-
-
