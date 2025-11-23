@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <meta name="viewport" content="width=device-width, user-scalable=yes">
 
 <link rel="manifest" href="/manifest.json">
 
@@ -68,7 +68,7 @@ if ('serviceWorker' in navigator) {
         position: absolute; z-index: 30; opacity: 1; top:360px; width:100%; height:200px; 
         background-color: #222; /* 暗めの背景 */
         color: #fff; /* 白い文字 */
-        font-size:12px; padding:10px; overflow-y: scroll; 
+        font-size:12px; padding:10px; overflow-y: scroll;
         display: none;
     }
     
@@ -119,7 +119,7 @@ if ('serviceWorker' in navigator) {
 <body bgcolor="#000000" text="#ffffff"> 
 <div id="container">
     <canvas id="canvas"></canvas>
-   
+    <img id="main_img" src="22.gif"></img>
     <img id="main_imgg" src="33.svg"></img>
     <div id="data_text1" class="datatext1"> </div>
     <div id="data_text2" class="datatext2"> </div>
@@ -158,9 +158,13 @@ let lapTimerId;     // requestAnimationFrameのID
 let lapStartTime = 0;
 let lapFixedDisplayTimeoutId;
 
-// ★ 修正追加: localStorageの更新頻度制御用
+// ★修正追加: localStorageの更新頻度制御用
 const STORAGE_UPDATE_INTERVAL = 1000;
 let lastStorageUpdate = 0;
+
+// ★修正追加: デバッグ情報の更新頻度制御用
+let lastDebugUpdate = 0;
+const DEBUG_UPDATE_INTERVAL = 1000; // 1000ms = 1秒
 
 
 // --- Web Bluetooth API関連のグローバル変数 ---
@@ -494,6 +498,7 @@ function parseNmeaLine(line) {
     return null;
 }
 
+// ★修正: NMEAログの表示処理を停止（パフォーマンス改善のため）
 function processNmeaData(data) {
     nmeaBuffer += data;
     const lines = nmeaBuffer.split('\n');
@@ -507,13 +512,15 @@ function processNmeaData(data) {
                 latestGpsPosition = position;
             }
             
-            // デバッグ情報にNMEA行を追加
+            // ★修正: NMEA行のデバッグログ表示をコメントアウト (パフォーマンス向上のため)
+            /*
             const debugLog = document.createElement('div');
             debugLog.textContent = line.trim();
             debugInfo.prepend(debugLog);
             if(debugInfo.children.length > 50) {
                 debugInfo.removeChild(debugInfo.lastChild);
             }
+            */
         }
     }
     
@@ -664,6 +671,7 @@ function getIntersectionTime(p1, p2, l1, l2, l3, l4) {
     return p1.time + (p2.time - p1.time) * ratio;
 }
 
+// ★修正: デバッグ情報更新頻度制御ロジックを導入
 function onWebUsbPositionUpdate(position) {
     if (!position || !position.coords) {
         document.getElementById("debugInfo").innerHTML += "<br>GPS信号を探索中です...";
@@ -750,21 +758,26 @@ function onWebUsbPositionUpdate(position) {
     lastPosition = { latitude: currentLat, longitude: currentLon, time: currentTime };
     previousSideOfLine = currentSideOfLine;
 
-    const logText = `
-        <br>P1: ${idd.toFixed(6)}, ${keii.toFixed(6)}
-        <br>P2: ${iddd.toFixed(6)}, ${keiii.toFixed(6)}
-        <br>現在位置: ${currentLat.toFixed(6)}, ${currentLon.toFixed(6)} (Fix: ${latestGgaFixQuality})
-        <br>距離: ${distanceToStartLine.toFixed(2)} m
-        <br>閾値: ${threshold} m
-        <br>前回からの経過時間: ${(timeSinceLastLap / 1000).toFixed(2)}秒
-        <br>ラップクールダウン時間: ${lapCoolDown / 1000}秒
-        <br>クールダウン経過: ${isCoolDownOver}
-        <br>ライン通過: ${isCrossingLine}
-        <br>閾値内: ${isNearStartLine}
-        <br>周回数: ${lapCount}`;
-    
-    const existingLog = document.getElementById("debugInfo").innerHTML;
-    document.getElementById("debugInfo").innerHTML = logText + "<hr>" + existingLog;
+    // ★修正: デバッグ情報の更新を1秒に1回に制限
+    const now = Date.now();
+    if (now - lastDebugUpdate >= DEBUG_UPDATE_INTERVAL) {
+        const logText = `
+            <br>P1: ${idd.toFixed(6)}, ${keii.toFixed(6)}
+            <br>P2: ${iddd.toFixed(6)}, ${keiii.toFixed(6)}
+            <br>現在位置: ${currentLat.toFixed(6)}, ${currentLon.toFixed(6)} (Fix: ${latestGgaFixQuality})
+            <br>距離: ${distanceToStartLine.toFixed(2)} m
+            <br>閾値: ${threshold} m
+            <br>前回からの経過時間: ${(timeSinceLastLap / 1000).toFixed(2)}秒
+            <br>ラップクールダウン時間: ${lapCoolDown / 1000}秒
+            <br>クールダウン経過: ${isCoolDownOver}
+            <br>ライン通過: ${isCrossingLine}
+            <br>閾値内: ${isNearStartLine}
+            <br>周回数: ${lapCount}`;
+        
+        // 既存のログ表示を上書き表示 (最も負荷の低い方法)
+        document.getElementById("debugInfo").innerHTML = logText + "<hr>NMEA Log is disabled for performance.";
+        lastDebugUpdate = now;
+    }
 }
 
 
@@ -818,4 +831,3 @@ window.addEventListener('DOMContentLoaded', function () {
 </script>
 </body>
 </html>
-
