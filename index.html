@@ -238,35 +238,6 @@ if ('serviceWorker' in navigator) {
 
 
 
-    <div class="form-group">
-        <h3>📡 NMEA/USBデバイス設定 (オプション)</h3>
-    </div>
-
-    <div class="form-group">
-        <label for="vendorId">NMEA VENDOR ID (例: 0x1A86):</label>
-        <input type="text" id="vendorId" placeholder="例: 0x1A86">
-    </div>
-    <div class="form-group">
-        <label for="productId">NMEA PRODUCT ID (例: 0x7523):</label>
-        <input type="text" id="productId" placeholder="例: 0x7523">
-        <small>※IDは16進数表記で入力してください</small>
-    </div>
-    <div class="form-group">
-        <label for="interfaceNumber">INTERFACE NUMBER (例: 0):</label>
-        <input type="number" id="interfaceNumber" placeholder="例: 0">
-    </div>
-    <div class="form-group">
-        <label for="inEndpoint">IN ENDPOINT (例: 1):</label>
-        <input type="number" id="inEndpoint" placeholder="例: 1">
-    </div>
-
-    <div class="form-group">
-        <button onclick="saveNmeaSettings()">NMEA/USB設定を保存</button>
-    </div>
-    <div class="form-group">
-        <p id="setNmeaSettings"></p>
-    </div>
-
 
 
 
